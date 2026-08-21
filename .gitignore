@@ -17,3 +17,6 @@ env/
 
 # Mac
 .DS_Store
+
+# no pdfs
+.pdf
