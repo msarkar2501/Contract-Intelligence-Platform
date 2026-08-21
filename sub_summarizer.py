@@ -3,6 +3,7 @@ from openai import OpenAI
 import os
 import json
 from system_prompts import SUMMARY_SYSTEM
+from tool_list import SUMMARY_TOOL
 
 load_dotenv()
 llm_client = OpenAI(
@@ -26,16 +27,21 @@ def summary_agent(contract_type, party_role, extracted_clauses, risk_assessments
     response = llm_client.chat.completions.create(
         model = "gemini-3.6-flash",
         messages = summarized_messages,
+        tools = [SUMMARY_TOOL],
+        tool_choice = {"type": "function", "function": {"name": "submit_summary"}},
         max_tokens = 8000,
         reasoning_effort = "low"
     )
 
-    summary = response.choices[0].message.content
+    choice = response.choices[0]
 
-    if not summary:
+    if not choice.message.tool_calls:
         raise RuntimeError(
-            f"summary_agent: model returned empty content. "
-            f"finish_reason={response.choices[0].finish_reason!r}"
+            f"summary_agent: model did not return a tool call. "
+            f"finish_reason={choice.finish_reason!r} content={choice.message.content!r}"
         )
 
-    return summary
+    tool_call = choice.message.tool_calls[0]
+    result = json.loads(tool_call.function.arguments)
+
+    return result

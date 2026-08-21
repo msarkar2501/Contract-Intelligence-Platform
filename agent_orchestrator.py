@@ -40,11 +40,6 @@ def extract_step(contract_text):
 
 
 def analyze_step(contract_text, extracted_result, party_role=None):
-    """
-    Phase 2: validation, perspective-aware risk assessment, gap check, and summary.
-    Call this after the user has picked party_role from extracted_result["parties"]
-    (or leave it as None to fall back to the "unspecified" default behavior).
-    """
     validated_clauses, flagged_clauses = validation_agent(extracted_result["clauses"], contract_text)
     print(f"[analyze_step] validated: {len(validated_clauses)}, flagged: {len(flagged_clauses)}")
 
@@ -62,14 +57,16 @@ def analyze_step(contract_text, extracted_result, party_role=None):
         risk_assessments,
         missing_clauses,
     )
-    print("[analyze_step] summary generated")
+    print(f"[analyze_step] summary generated, overall_risk_score={summary['overall_risk_score']}")
 
     return {
         "is_contract": True,
         "contract_type": extracted_result.get("contract_type", "other"),
         "party_role": party_role or "unspecified",
         "parties": extracted_result.get("parties", []),
-        "summary": summary,
+        "summary": summary["summary_text"],
+        "overall_risk_score": summary["overall_risk_score"],
+        "overall_risk_explanation": summary["overall_risk_explanation"],
         "clauses": validated_clauses,
         "risks": risk_assessments,
         "missing_clauses": missing_clauses,
@@ -78,11 +75,6 @@ def analyze_step(contract_text, extracted_result, party_role=None):
 
 
 def orchestrator(contract_text, party_role=None):
-    """
-    Single-call convenience wrapper for CLI/testing — runs both phases back to back.
-    The Streamlit app should call extract_step() and analyze_step() separately instead,
-    so it can show the user the detected parties before asking which one they are.
-    """
     extracted_result = extract_step(contract_text)
 
     if not extracted_result["is_contract"]:

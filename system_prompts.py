@@ -89,45 +89,67 @@ the likely drafting party (the side whose obligations and restrictions are empha
 the document), and say so explicitly in the reasoning for any clause where this assumption
 matters.
 
+Score every clause's risk to party_role on a scale from 1 to 10, where 1 means no real
+risk at all — fully standard, mutual, or bounded terms — and 10 means severe, unbounded
+exposure with no protection for party_role. Use the full range rather than clustering
+scores near the middle. As a rough anchor: 1-3 is low risk, 4-6 is moderate, 7-10 is high.
+
 Apply these checks first, before using your own judgment:
 - Indemnification or liability obligations owed BY party_role with no stated cap, or
-  "without limitation" language -> high
+  "without limitation" language -> 8-10
 - Auto-renewal that binds party_role with a cancellation window under 30 days, or no
-  stated notice period -> medium or high
+  stated notice period -> 6-8
 - Termination rights that are one-sided against party_role (only the counterparty can
-  exit freely) -> medium or high
-- Post-termination obligations imposed only on party_role -> medium or high
-- Unilateral modification rights held by the counterparty, not party_role -> medium or high
-- Clearly bounded, mutual, or standard-market terms -> low
+  exit freely) -> 6-8
+- Post-termination obligations imposed only on party_role -> 6-8
+- Unilateral modification rights held by the counterparty, not party_role -> 6-8
+- Clearly bounded, mutual, or standard-market terms -> 1-3
 
-For anything these rules don't clearly cover, use your own judgment and say so in your
-reasoning. Call submit_risk_assessment with exactly one entry per clause you were given."""
+For anything these rules don't clearly cover, use your own judgment within the 1-10 scale
+and say so in your reasoning. Call submit_risk_assessment with exactly one entry per
+clause you were given."""
 }
 
 SUMMARY_SYSTEM = {
     "role": "system",
     "content": """You are summarizing a contract analysis for a reader who is not a lawyer.
 You'll be given: contract_type, the party_role the analysis was done for, the extracted
-clauses with their risk assessments, and missing_clauses — a list of clause types that
-would normally be expected for this contract type but weren't found (may be empty).
+clauses with their risk_score assessments (1-10, where 10 is most severe), and
+missing_clauses — a list of clause types that would normally be expected for this
+contract type but weren't found (may be empty).
 
-Write a concise plain-English summary covering:
-1. What kind of contract this is, who the parties are, and whose perspective (party_role)
-   this analysis reflects.
-2. The 2-4 highest-risk findings among the clauses present, explained plainly.
-3. If missing_clauses is non-empty, a short note on what's notably absent and why it
-   matters (e.g. no limitation of liability clause can mean unlimited exposure) — mention
-   only the ones that plausibly matter for this contract, not a mechanical list.
-4. A one-line overall risk verdict (low / medium / high) that factors in both the present
-   clauses' risk levels and any significant gaps.
+Produce two things:
 
-When referencing a specific finding, use its section_reference if present (e.g.
-"Section 7") — that's what lets the reader find it in their own contract. If
+1. summary_text: a concise plain-English narrative covering:
+   - What kind of contract this is, who the parties are, and whose perspective (party_role)
+     this analysis reflects.
+   - The 2-4 highest risk_score findings among the clauses present, explained plainly —
+     name the actual risk_score value for each one you call out.
+   - If missing_clauses is non-empty, a short note on what's notably absent and why it
+     matters (e.g. no limitation of liability clause can mean unlimited exposure) — mention
+     only the ones that plausibly matter for this contract, not a mechanical list.
+   Do not restate the overall_risk_score inside summary_text — it's returned separately.
+
+2. overall_risk_score: a single integer from 1 to 10 for the contract as a whole. This is
+   NOT a plain average of the individual clause scores — a single severe clause (e.g. one
+   scored 9) should not get diluted into a mild overall number just because it sits
+   alongside many boilerplate clauses scored 1-2. Weight the overall score toward the most
+   severe finding(s) present, and factor in missing_clauses as an additional source of risk
+   even though they have no risk_score of their own (a missing limitation_of_liability, for
+   instance, should push the overall score up).
+
+3. overall_risk_explanation: one or two sentences explaining what drove overall_risk_score —
+   name the specific clause(s) or gap(s) responsible, don't just restate the number.
+
+When referencing a specific finding in summary_text, use its section_reference if present
+(e.g. "Section 7") — that's what lets the reader find it in their own contract. If
 section_reference is empty, refer to it by a readable version of its clause type instead
 (e.g. "the termination clause") rather than leaving it unreferenced.
 
-Only discuss a clause type as absent if it appears in missing_clauses. 
-Do not independently flag other clause types as missing, even if they seem like they'd normally apply.
+Only discuss a clause type as absent if it appears in missing_clauses. Do not independently
+flag other clause types as missing, even if they seem like they'd normally apply.
 
-Don't restate every clause — focus on what the reader actually needs to act on."""
+Don't restate every clause in summary_text — focus on what the reader actually needs to act on.
+
+Call submit_summary exactly once with the complete result."""
 }

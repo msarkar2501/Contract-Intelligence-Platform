@@ -88,7 +88,7 @@ The function takes a single parameter:
 1. assessments: An array of objects, each representing a clause and its associated risk assessment. Each object contains:
    - clause_type: The type of clause (e.g., indemnification, limitation_of_liability, termination, etc.)
    - section_reference: The section or clause number as written in the contract, or an empty string if none.
-   - risk_level: A string indicating the risk level assigned to the clause (low, medium, high).
+   - risk_score: A string indicating the risk score assigned to the clause (negligible:1::severe:10).
    - reasoning: A one or two sentence explanation for the assigned risk level, relative to the party_role
      the assessment was done for.
 """
@@ -115,17 +115,71 @@ RISK_TOOL = {
                                 "enum": list(CLAUSE_DESCRIPTIONS.keys())
                             },
                             "section_reference": {"type": "string"},
-                            "risk_level": {"type": "string", "enum": ["low", "medium", "high"]},
+                            "risk_score": {"type": "integer", 
+                                           "minimum": 1,
+                                           "maximum": 10,
+                                           "description": "How much this clause burdens or exposes party_role, from 1 (negligible) to 10 (severe)."
+                                           },
                             "reasoning": {
                                 "type": "string",
-                                "description": "One or two sentence explanation for the assigned risk level, relative to party_role."
+                                "description": "One or two sentence explanation for the assigned risk score, relative to party_role."
                             }
                         },
-                        "required": ["clause_id", "clause_type", "section_reference", "risk_level", "reasoning"]
+                        "required": ["clause_id", "clause_type", "section_reference", "risk_score", "reasoning"]
                     }
                 }
             },
             "required": ["assessments"]
+        }
+    }
+}
+
+# ========================================================================================================================================================
+
+"""
+submit_summary function is used to submit the structured summary of a contract analysis.
+Parameters:
+1. summary_text: Plain-English narrative covering contract type, parties, whose perspective
+   the analysis reflects, the 2-4 highest risk_score findings (named with their scores),
+   and a note on any missing_clauses that plausibly matter.
+2. overall_risk_score: A single integer 1-10 rating for the contract as a whole, weighted
+   toward the most severe finding(s) present rather than a plain average.
+3. overall_risk_explanation: One or two sentence explanation of the overall_risk_score.
+"""
+
+SUMMARY_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "submit_summary",
+        "description": "Submit the structured summary and overall risk score for a contract analysis.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "summary_text": {
+                    "type": "string",
+                    "description": "Plain-English narrative covering contract type, parties, "
+                                    "whose perspective the analysis reflects, the highest "
+                                    "risk_score findings named with their scores, and any "
+                                    "notable missing_clauses. Do not restate the overall score here."
+                },
+                "overall_risk_score": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Overall risk to party_role from this contract as a whole, "
+                                    "1 (negligible) to 10 (severe). Weighted toward the most "
+                                    "severe individual finding(s), not a plain average of all "
+                                    "clause risk_scores. Missing_clauses should push this up "
+                                    "even though they have no risk_score of their own."
+                },
+                "overall_risk_explanation": {
+                    "type": "string",
+                    "description": "One or two sentence explanation of why overall_risk_score "
+                                    "was assigned, referencing the specific finding(s) or gaps "
+                                    "that drove it."
+                }
+            },
+            "required": ["summary_text", "overall_risk_score", "overall_risk_explanation"]
         }
     }
 }
