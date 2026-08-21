@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 import io
@@ -12,7 +13,7 @@ from slowapi.errors import RateLimitExceeded
 
 from agent_orchestrator import load_pdf, extract_step, analyze_step
 
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB — plenty for a contract PDF, cheap to enforce
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 
 app = FastAPI()
 
@@ -26,6 +27,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/")
+def serve_ui():
+    return FileResponse("index.html")
 
 
 class AnalyzeRequest(BaseModel):

@@ -225,7 +225,7 @@
                 const formData = new FormData();
                 formData.append("file", file);
 
-                const response = await fetch("http://localhost:7860/extract", {
+                const response = await fetch("/extract", {
                     method: "POST",
                     body: formData,
                 });
@@ -299,7 +299,7 @@
                     party_role: partyRole,
                 });
 
-                const response = await fetch("http://localhost:7860/analyze", {
+                const response = await fetch("/analyze", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: requestBody,
@@ -344,9 +344,6 @@
 
             html += `<h3>Risk Flags</h3>`;
 
-            // clause_id is the reliable join key between risks and clauses — both echo
-            // it back from the same extraction pass, so build a lookup by id rather
-            // than trying to match on section_reference (can be empty or reused).
             const clausesById = {};
             result.clauses.forEach((c) => { clausesById[c.clause_id] = c; });
 
