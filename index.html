@@ -175,11 +175,30 @@
             color: #dc2626;
             font-size: 0.9rem;
         }
+
+        .site-footer {
+            margin-top: 32px;
+            padding-top: 16px;
+            border-top: 1px solid var(--color-border);
+            font-size: 0.8rem;
+            color: var(--color-muted);
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .site-footer a {
+            color: var(--color-primary);
+            text-decoration: none;
+        }
+
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <h1>Contract Intelligence</h1>
-    <div class="subtitle">Upload a contract, get clauses, risk flags, and a plain-English summary.</div>
+    <div class="subtitle">Upload a contract, get clauses, risk flags, and a plain-English summary — run through a five-stage agent pipeline (extraction, validation, risk flagging, gap-checking, and summarization).</div>
 
     <div class="card">
         <input type="file" id="pdfInput" accept="application/pdf">
@@ -199,6 +218,14 @@
     </div>
 
     <div id="analysisOutput" class="card" style="display:none;"></div>
+
+    <div class="site-footer">
+        <a href="https://github.com/msarkar2501/Contract-Intelligence-Platform" target="_blank" rel="noopener">View source on GitHub</a>
+        <br>
+        This is a portfolio demo hosted on a free tier — uploads are capped at 5/hour and 10MB, and the first request after a period of inactivity may take up to a minute to wake the server.
+        <br>
+        Contract text is sent to an AI model for analysis and isn't stored, but please use a sample document rather than a real confidential contract.
+    </div>
 
     <script>
         let contractText = null;
