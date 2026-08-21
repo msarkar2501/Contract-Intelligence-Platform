@@ -2,10 +2,9 @@
 
 Upload a contract, get its clauses extracted, risk-flagged from your chosen party's perspective, and summarized in plain English — run through a five-stage agent pipeline: extraction, validation, risk flagging, gap-checking, and summarization.
 
-![Contract Intelligence Platform — screenshot of the upload screen and risk-flagged results view](docs/screenshot.png)
-*(Add a screenshot here — save it as `docs/screenshot.png` in the repo, or update the path above to wherever you put it.)*
+![Platform View](docs/front.png)
 
-**[Live demo](https://contract-intelligence-platform-eauj.onrender.com)** · Built from scratch, no LangChain / LlamaIndex — part of a broader [LLM engineering portfolio](https://github.com/msarkar2501/LLM_Learning)
+**[Live demo](https://contract-intelligence-platform-eauj.onrender.com)** · Python (FastAPI) backend, vanilla HTML/CSS/JS frontend, built from scratch with no LangChain / LlamaIndex.
 
 > Hosted on a free tier — the first request after a period of inactivity can take up to a minute while the server wakes up. Uploads are capped at 5/hour and 10MB. Please use a sample contract, not a real confidential one — text is sent to an AI model for analysis and isn't stored, but this is a portfolio demo, not a compliance tool.
 
